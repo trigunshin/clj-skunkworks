@@ -9,6 +9,10 @@ file { '/home/vagrant/.screenrc':
    target => '/vagrant/.screenrc',
 }
 
+file { '/home/vagrant/bin':
+   ensure => 'directory',
+}
+
 exec { "load-screen":
     cwd => "$install_dir",
     command => '/usr/bin/screen -AmdS clj -t appjs bash',
@@ -23,10 +27,31 @@ exec { "load-screen":
 
 exec { "run-app":
     cwd => "$install_dir",
-    command => "/usr/bin/screen -S skunks -p appjs -X stuff \'sudo node app.js\r\'",
+    command => "/usr/bin/screen -S skunks -p appjs -X stuff \'sudo ls\r\'",
     user => 'vagrant',
     require => [
         Exec['load-screen'],
         Package['g++'],
     ],
+}
+
+exec {"wget-lein":
+    cwd => "$install_dir/bin",
+    require => File['/home/vagrant/bin'],
+}
+
+define download_file(
+        $site="https://raw.github.com/technomancy/leiningen/stable/bin/lein",
+        $cwd="/home/vagrant/bin",
+        $creates="/home/vagrant/bin/lein",
+        $require="",
+        $user="vagrant") {
+
+    exec { $name:
+        command => "wget ${site}/${name}",
+        cwd => $cwd,
+        creates => "${cwd}/${name}",
+        require => $require,
+        user => $user,
+    }
 }

@@ -14,12 +14,6 @@ exec { 'apt-get-update':
 # run apt-get update before package installs
 Exec['apt-get-update'] -> Package <| |>
 
-package {'software-properties-common':
-    ensure => 'installed'
-}
-package { 'python-software-properties':
-    ensure => 'installed'
-}
 package { 'unzip':
     ensure => 'installed'
 }
